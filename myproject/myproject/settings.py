@@ -38,10 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',  # DRFのインストール
+    'drf_spectacular',
+    'corsheaders',
     'ArticleSnap',           # 作成したアプリ
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,10 +131,73 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'ArticleSnap.CustomUser'
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # OpenAPIスキーマを自動生成
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Unite API',
+    'DESCRIPTION': 'Description of your API',
+    'VERSION': '1.0.0',
+    # 必要に応じて他の設定をカスタマイズ
+    'SERVE_INCLUDE_SCHEMA': True,  # スキーマをエンドポイントに含めるかどうか
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SECURITY': [
+        {
+            'BearerAuth': []
+        }
+    ],
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,  # ページリロード後も認証情報を保持
+    },
+    'COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    },
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # アクセストークンの有効期限を7日に設定
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # リフレッシュトークンの有効期限を30日に設定
+    # 必要に応じて他の設定をカスタマイズ
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {  # コンソールにログを出力
+            'class': 'logging.StreamHandler',
+        },
+        'file': {  # ファイルにログを出力
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',  # ログファイルのパス
+        },
+    },
+    'loggers': {
+        'django': {  # Djangoのデフォルトロガー
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',  # DEBUGレベル以上のログを出力
+            'propagate': True,
+        },
+        'your_app_name': {  # アプリ専用のロガー
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
 }
