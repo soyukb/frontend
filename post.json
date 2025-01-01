@@ -48,3 +48,19 @@
   "author": "string",
   "article": 1
 }
+
+{
+  "content": "This is a sample content string.",
+  "media": [
+    {
+      "media_type": "image",
+      "media_url": "https://example.com/sample-image.jpg"
+    }
+  ],
+  "thingid": "abc123",
+  "depth": 100,
+  "parentid": "parent456",
+  "created_at": "2025-01-01T18:30:40.782Z",
+  "likes": 1500
+}
+

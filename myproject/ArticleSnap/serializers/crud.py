@@ -34,10 +34,11 @@ class CommentSerializer(serializers.ModelSerializer):
         return comment
 
 class PostSerializer(serializers.ModelSerializer): 
-    media = MediaSerializer(many=True)
+    media = MediaSerializer(many=True, required=False)
     class Meta:
         model = Post
-        fields = ['content', 'media']
+        fields = ['content', 'media','thingid','depth','parentid','created_at','likes']
+        read_only_fields = []
         
     def create(self, validated_data):
         # ネストされた 'media' データを取り出す
@@ -62,7 +63,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ['article_id','title','source_url','category','published_at','comment_count','is_published','media', 'posts']
-        read_only_fields = ['article_id','published_at','comment_count','is_published',]
+        read_only_fields = ['article_id',]
         
     def create(self, validated_data):
         with transaction.atomic():

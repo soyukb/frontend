@@ -1,5 +1,6 @@
 from django.db import models
 from .media import Media 
+from django.utils.timezone import now
 
 class Post(models.Model):
     
@@ -21,11 +22,20 @@ class Post(models.Model):
     likes = models.IntegerField(default=0, verbose_name="いいね数")
     
     # 作成日時
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
+    created_at = models.DateTimeField(default=now, verbose_name="作成日時")  # 日時フィールド
     
     # MediaへのMany-to-Manyフィールド
     media = models.ManyToManyField(Media, related_name="post", verbose_name="関連メディア")
+    
+    # Thing ID
+    thingid = models.CharField(null=True, blank=True,max_length=50, verbose_name="Thing ID", default="")
+    
+    # 深さ（Depth）
+    depth = models.IntegerField(verbose_name="深さ", default=0)
 
+    # 親ID（Parent ID）
+    parentid = models.CharField(null=True, blank=True,max_length=50, verbose_name="親ID", default="")
+    
     class Meta:
         db_table = "posts"
         # verbose_name = "投稿"

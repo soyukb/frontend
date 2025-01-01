@@ -8,7 +8,7 @@ from .views import (
 urlpatterns = [
     path('articles/', ArticleAPIView.as_view()),
     path('articles/<int:pk>/', ArticleAPIView.as_view()),
-    # path('posts/', PostAPIView.as_view()),
+    path('posts/', PostAPIView.as_view()),
     # path('posts/<int:pk>/', PostAPIView.as_view()),
     # path('media/', MediaAPIView.as_view()),
     # path('media/<int:pk>/', MediaAPIView.as_view()),

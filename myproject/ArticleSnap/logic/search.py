@@ -5,6 +5,7 @@ import time  # スクリプトに遅延を加えるためのtimeモジュール
 import os
 import json
 from pprint import pprint
+from selenium.webdriver.common.action_chains import ActionChains
 
 def extract_data_from_html(url, driver_path='./chromedriver.exe'):
     """
@@ -38,9 +39,8 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
     try:
         # 指定されたURLを開く
         driver.get(url)
-
-        # ページ読み込みを待機（必要に応じて明示的待機に変更可能）
-        time.sleep(2)
+        scroll_to_bottom(driver)
+        click_join_outline_buttons(driver, wait_time=1)
 
         # 動的にメディアと投稿を収集する処理
         media = []
@@ -49,7 +49,8 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
         # タイトル要素を取得
         try:
             element = driver.find_element(By.CSS_SELECTOR, "[id^='post-title-t3']")
-            title = element.text
+            if element.text:
+                title = element.text
         except Exception as e:
             print("title not found!")
         
@@ -90,10 +91,10 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
                 # 辞書を作成して追加
                 item = {
                     "content": div_text,
-                    "media": [
-                        {
-                        },
-                    ]
+                    # "media": [
+                    #     {
+                    #     },
+                    # ]
                 }
 
                 # 配列に追加
@@ -101,7 +102,70 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
         except Exception as e:
             print("video not found!")
         
-        
+        # shreddit-commentタグをすべて取得
+        comment_elements = driver.find_elements(By.TAG_NAME, "shreddit-comment")
+
+        # 各shreddit-commentタグを処理
+        for comment_element in comment_elements:
+            item = {
+                "content": "This is a sample content string.",
+                # "media": [
+                #     {
+                #     "media_type": "image",
+                #     "media_url": "https://example.com/sample-image.jpg"
+                #     }
+                # ],
+                # "thingid": "abc123",
+                # "depth": 100,
+                # "parentid": "parent456",
+                # "created_at": "2025-01-01T18:30:40.782Z",
+                # "likes": 1500
+                }
+            # 必要な属性を取得
+            thingid = comment_element.get_attribute("thingid")
+            depth = comment_element.get_attribute("depth")
+            parentid = comment_element.get_attribute("parentid")
+            likes = comment_element.get_attribute("score")
+            try:
+                p_text = comment_element.find_element(By.TAG_NAME, "p").text
+            except Exception as e:
+                print("text not found!")
+                continue
+            if p_text:
+                item["content"]=p_text
+            item["depth"]=depth
+            if parentid:
+                item["parentid"]=parentid
+            item["thingid"]=thingid
+            item["likes"]=likes
+            
+            # <time>タグのdatetime属性を取得
+            time_element = comment_element.find_element(By.TAG_NAME, "time")
+            datetime = time_element.get_attribute("datetime")
+            
+            item["created_at"]=datetime
+            
+            try:
+                # 画像URLを取得 
+                img_elements = comment_element.find_elements(By.TAG_NAME, "img")
+                for img_element in img_elements:
+                    img_url = img_element.get_attribute("src")
+                    if img_url:
+                        posts["media"].append({"media_type": "image", "media_url": img_url})
+            except Exception as e:
+                print("image not found!")
+                
+            try:
+                # 画像URLを取得 
+                video_elements = comment_element.find_elements(By.TAG_NAME, "video")
+                for video_element in video_elements:
+                    video_url = video_element.get_attribute("src")
+                    if video_url:
+                        posts["media"].append({"media_type": "video", "media_url": video_url})
+            except Exception as e:
+                print("video not found!")
+            
+            posts.append(item)
         
         
         # 整形されたJSONデータを作成
@@ -155,8 +219,78 @@ def get_video_url_from_loaded_page(driver, resolution_width=1280):
 
     return None
 
+def scroll_to_bottom(driver, pause_time=1):
+    """
+    Scrolls to the bottom of the page using Selenium.
+
+    Parameters:
+        driver (webdriver): The Selenium WebDriver instance.
+        pause_time (int or float): Time to pause after each scroll step (in seconds).
+    """
+    # 現在のスクロール高さを取得
+    last_height = driver.execute_script("return document.body.scrollHeight")
+
+    while True:
+        # ページの一番下までスクロール
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        # ページが読み込まれるのを待つ
+        time.sleep(pause_time)
+
+        # 新しいスクロール高さを取得
+        new_height = driver.execute_script("return document.body.scrollHeight")
+
+        # 一番下に到達したかを確認
+        if new_height == last_height:
+            try:
+                view_more_button = driver.find_element(By.XPATH, "//span[contains(text(), 'View more comments')]")
+                view_more_button.click()
+            except Exception as e:
+                print(f"Buton not found!")
+            break
+
+        last_height = new_height
+        
+    # ページの一番上にスクロール
+    driver.execute_script("window.scrollTo(0, 0);")
+
+def click_join_outline_buttons(driver, wait_time=1.5):
+    """
+    Seleniumを使用して、ページ内のすべての`join-outline`属性が付いたボタンをクリックします。
+
+    Args:
+        driver (webdriver): Selenium WebDriverオブジェクト
+        wait_time (int): ボタンをクリックする間隔（秒）
+
+    Returns:
+        int: クリックしたボタンの数
+    """
+    time.sleep(1)
+    
+    try:
+        # join-outlineアイコンが付いているボタンをすべて取得
+        for i in range(3):  # 0から2まで繰り返す
+            svg_elements = driver.find_elements(By.TAG_NAME, "svg")
+            join_outline_svg = [svg for svg in svg_elements if svg.get_attribute("icon-name") == "join-outline"]
+            print(f"見つかったボタンの数: {len(join_outline_svg)}")
+            time.sleep(3)
+            # 各ボタンをクリック
+            for button in join_outline_svg:
+                try:
+                    # ボタンが表示されるようスクロール
+                    ActionChains(driver).move_to_element(button).perform()
+                    button.click()
+                    print("ボタンをクリックしました")
+                    time.sleep(wait_time)  # ボタンを押す間隔
+                except Exception as e:
+                    print(f"ボタンをクリック中にエラーが発生しました")
+        return len(join_outline_svg)
+    except Exception as e:
+        print(f"処理中にエラーが発生しました")
+        return 0
+
 if __name__ == "__main__":
-    url = r"https://www.reddit.com/r/PokemonUnite/comments/1hon7rh/permanent_lucario_unite_license_and_absol_holowear/"
+    url = r"https://www.reddit.com/r/PokemonUnite/comments/1hqpbt8/when_you_steal_rayquaza_oc/"
     result=extract_data_from_html(url, driver_path='./chromedriver.exe')
     pprint(result)
 

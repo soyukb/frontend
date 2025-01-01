@@ -7,6 +7,7 @@ from .serializers import (
     ArticleSerializer, PostSerializer, MediaSerializer,
     CategorySerializer, CommentSerializer, UrlSerializer
 )
+from .logic.search import extract_data_from_html
 
 class BaseAPIView(APIView):
     model = None
@@ -30,7 +31,7 @@ class BaseAPIView(APIView):
 
     def put(self, request, pk):
         instance = self.model.objects.get(pk=pk)
-        serializer = self.serializer_class(instance, data=request.data)
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -70,49 +71,51 @@ class RedditAPIView(APIView):
         if not input_url:
             return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
         
+        response_data = extract_data_from_html(input_url)
+        
         # 以下はサンプルデータ（実際にはWebスクレイピングやAPI呼び出しでデータ取得）
-        response_data = {
-            "title": "Sample Article Title",
-            "source_url": input_url,
-            "media": [
-                {
-                    "media_type": "image",
-                    "media_url": "https://example.com/image1.jpg"
-                },
-                {
-                    "media_type": "video",
-                    "media_url": "https://example.com/video1.mp4"
-                }
-            ],
-            "posts": [
-                {
-                    "content": "This is a sample post content.",
-                    "media": [
-                        {
-                            "media_type": "image",
-                            "media_url": "https://example.com/image1.jpg"
-                        },
-                        {
-                            "media_type": "video",
-                            "media_url": "https://example.com/video1.mp4"
-                        }
-                    ]
-                },
-                {
-                    "content": "This is another post content.",
-                    "media": [
-                        {
-                            "media_type": "image",
-                            "media_url": "https://example.com/image1.jpg"
-                        },
-                        {
-                            "media_type": "video",
-                            "media_url": "https://example.com/video1.mp4"
-                        }
-                    ]
-                }
-            ]
-        }
+        # response_data = {
+        #     "title": "Sample Article Title",
+        #     "source_url": input_url,
+        #     "media": [
+        #         {
+        #             "media_type": "image",
+        #             "media_url": "https://example.com/image1.jpg"
+        #         },
+        #         {
+        #             "media_type": "video",
+        #             "media_url": "https://example.com/video1.mp4"
+        #         }
+        #     ],
+        #     "posts": [
+        #         {
+        #             "content": "This is a sample post content.",
+        #             "media": [
+        #                 {
+        #                     "media_type": "image",
+        #                     "media_url": "https://example.com/image1.jpg"
+        #                 },
+        #                 {
+        #                     "media_type": "video",
+        #                     "media_url": "https://example.com/video1.mp4"
+        #                 }
+        #             ]
+        #         },
+        #         {
+        #             "content": "This is another post content.",
+        #             "media": [
+        #                 {
+        #                     "media_type": "image",
+        #                     "media_url": "https://example.com/image1.jpg"
+        #                 },
+        #                 {
+        #                     "media_type": "video",
+        #                     "media_url": "https://example.com/video1.mp4"
+        #                 }
+        #             ]
+        #         }
+        #     ]
+        # }
         
         serializer = ArticleSerializer(data=response_data)
         if serializer.is_valid():
