@@ -27,8 +27,8 @@ class Comment(models.Model):
 
     class Meta:
         db_table = "comments"
-        verbose_name = "コメント"
-        verbose_name_plural = "コメント"
+        # verbose_name = "コメント"
+        # verbose_name_plural = "コメント"
 
     def __str__(self):
         return f"{self.content[:50]}..."  # 内容を50文字に省略

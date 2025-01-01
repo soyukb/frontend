@@ -1,9 +1,11 @@
 # serializers.py
 from rest_framework import serializers
-from ..models import Article, Post, Media, Category, ArticleCategory, PostMedia, Comment, ArticleMedia
-import logging
+from ..models import Article, Post, Media, Category, Comment
+from django.db import transaction
+from django.db.models import F
 
-logger = logging.getLogger(__name__)
+class UrlSerializer(serializers.Serializer):
+    url = serializers.URLField()
 
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,32 +17,28 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
-class ArticleCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ArticleCategory
-        fields = '__all__'
-
-class PostMediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostMedia
-        fields = '__all__'
-
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-
-class ArticleMediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ArticleMedia
-        fields = '__all__'
+        
+    def create(self, validated_data):
+        with transaction.atomic():
+            # コメントを作成
+            comment = super().create(validated_data)            
+            # 関連するArticleのcomment_countを1増やす
+            article = comment.article  # CommentモデルにForeignKeyでArticleが関連付いていると仮定
+            article.comment_count = F('comment_count') + 1
+            article.save(update_fields=['comment_count'])
+        
+        return comment
 
 class PostSerializer(serializers.ModelSerializer): 
-    media = MediaSerializer(many=True,read_only=True,source='post_medias.media')
+    media = MediaSerializer(many=True)
     class Meta:
         model = Post
         fields = ['content', 'media']
-
+        
     def create(self, validated_data):
         # ネストされた 'media' データを取り出す
         media_data = validated_data.pop('media', [])
@@ -52,60 +50,50 @@ class PostSerializer(serializers.ModelSerializer):
         for media in media_data:
             # Media モデルのインスタンスを取得または新規作成
             media_instance, _ = Media.objects.get_or_create(**media)
-            
-            # PostMedia を作成し、Post と Media を関連付ける
-            PostMedia.objects.create(post=post, media=media_instance)
+            post.media.add(media_instance)
         
         # 作成した Post インスタンスを返す
         return post
 
-
 class ArticleSerializer(serializers.ModelSerializer):
-    media = MediaSerializer(many=True,read_only=True,source='article_medias.media')  # ネストされたメディアデータ
-    posts = PostSerializer(many=True,read_only=True)  # ネストされた投稿データ
+    media = MediaSerializer(many=True)
+    posts = PostSerializer(many=True) 
+    category = CategorySerializer(many=True, required=False)     
     class Meta:
         model = Article
-        fields = ['title', 'media', 'posts']
-
+        fields = ['article_id','title','source_url','category','published_at','comment_count','is_published','media', 'posts']
+        read_only_fields = ['article_id','published_at','comment_count','is_published',]
+        
     def create(self, validated_data):
-        logger.debug(f"Validated data: {validated_data}")  # 検証済みデータをログに出力
-        # ネストされた 'media' データを取り出す
-        media_data = validated_data.pop('media', [])
-        
-        # ネストされた 'posts' データを取り出す
-        posts_data = validated_data.pop('posts', [])
-        
-        # Article モデルのインスタンスを作成
-        article = Article.objects.create(**validated_data)
+        with transaction.atomic():
+            # ネストされた 'media' データを取り出す
+            media_data = validated_data.pop('media', [])
+            
+            # ネストされた 'posts' データを取り出す
+            posts_data = validated_data.pop('posts', [])
+            
+            # Article モデルのインスタンスを作成
+            article_instance = Article.objects.create(**validated_data)
 
-        
-        # 'media' データを処理
-        for media in media_data:
-            # Media モデルのインスタンスを取得または新規作成
-            media_instance, _ = Media.objects.get_or_create(**media)
-            print(media_instance)
-            # PostMedia を作成し、Post と Media を関連付ける
-            ArticleMedia.objects.create(article=article, media=media_instance)
-               
-        # 'posts' データを処理
-        for post_data in posts_data:
-            # Post の 'media' を取り出す
-            post_media_data = post_data.pop('media', [])
-            
-            # PostSerializer を利用して Post データを検証・保存
-            post_serializer = PostSerializer(data=post_data)
-            if post_serializer.is_valid():
-                # Post の 'article' フィールドを設定し保存
-                post_instance = post_serializer.save(article=article)
-                print(post_instance)
+            # 'media' データを処理
+            for media in media_data:
+                # Media モデルのインスタンスを取得または新規作成
+                media_instance, _ = Media.objects.get_or_create(**media)
+                article_instance.media.add(media_instance)
                 
-                # 'media' データを処理して Post と Media を関連付ける
-                for post_media in post_media_data:
+            # 'posts' データを処理
+            for post_data in posts_data:
+                # 'article_id' を post_data に追加
+                post_data['article_id'] = article_instance.article_id
+                # Post の 'media' を取り出す
+                post_media_data = post_data.pop('media', [])
+                post_instance, _ = Post.objects.get_or_create(**post_data)
+
+                # 'media' データを処理
+                for media in post_media_data:
                     # Media モデルのインスタンスを取得または新規作成
-                    media_instance, _ = Media.objects.get_or_create(**post_media)
-                    
-                    # PostMedia を作成し、Post と Media を関連付ける
-                    PostMedia.objects.create(post=post_instance, media=media_instance)
-            
-        # 作成した Article インスタンスを返す
-        return article
+                    media_instance, _ = Media.objects.get_or_create(**media)
+                    post_instance.media.add(media_instance)
+                        
+            # 作成した Article インスタンスを返す
+            return article_instance

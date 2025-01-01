@@ -1,4 +1,5 @@
 from django.db import models
+from .media import Media 
 
 class Post(models.Model):
     
@@ -6,7 +7,7 @@ class Post(models.Model):
     post_id = models.AutoField(primary_key=True)
     
     # 外部キー: Article
-    article = models.ForeignKey('Article', on_delete=models.CASCADE, verbose_name="記事")
+    article = models.ForeignKey('Article', on_delete=models.CASCADE, verbose_name="記事", related_name='posts')
     
     # 投稿内容
     content = models.TextField(verbose_name="投稿内容")
@@ -21,11 +22,14 @@ class Post(models.Model):
     
     # 作成日時
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
+    
+    # MediaへのMany-to-Manyフィールド
+    media = models.ManyToManyField(Media, related_name="post", verbose_name="関連メディア")
 
     class Meta:
         db_table = "posts"
-        verbose_name = "投稿"
-        verbose_name_plural = "投稿"
+        # verbose_name = "投稿"
+        # verbose_name_plural = "投稿"
 
     def __str__(self):
         return f"Post in Article {self.article_id}: {self.content[:50]}"

@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# MEDIA設定
+MEDIA_URL = '/media/'  # アップロードされたファイルにアクセスするURL
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 実際にファイルを保存するディレクトリ
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -176,28 +180,3 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {  # コンソールにログを出力
-            'class': 'logging.StreamHandler',
-        },
-        'file': {  # ファイルにログを出力
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',  # ログファイルのパス
-        },
-    },
-    'loggers': {
-        'django': {  # Djangoのデフォルトロガー
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',  # DEBUGレベル以上のログを出力
-            'propagate': True,
-        },
-        'your_app_name': {  # アプリ専用のロガー
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
-}

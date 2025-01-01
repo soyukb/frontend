@@ -1,4 +1,6 @@
 from django.db import models
+from .media import Media
+from .category import Category
 
 class Article(models.Model):
     # 主キー: 自動的にIDを設定
@@ -24,11 +26,17 @@ class Article(models.Model):
     
     # コメント数: キャッシュ用、デフォルト値0
     comment_count = models.IntegerField(default=0, verbose_name="コメント数")
+    
+    # MediaへのMany-to-Manyフィールド
+    media = models.ManyToManyField(Media, related_name="articles", verbose_name="関連メディア")
+    
+    # CategoryへのMany-to-Manyフィールド
+    category = models.ManyToManyField(Category, related_name="articles", verbose_name="関連カテゴリー")
 
     class Meta:
         db_table = "articles"  # テーブル名を明示的に指定
-        verbose_name = "記事"
-        verbose_name_plural = "記事"
+        # verbose_name = "記事"
+        # verbose_name_plural = "記事"
 
     def __str__(self):
         return f"{self.title[:50]}..."  # 管理画面で表示する文字列（50文字に省略）

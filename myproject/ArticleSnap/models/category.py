@@ -9,8 +9,8 @@ class Category(models.Model):
     
     class Meta:
         db_table = "categories"  # テーブル名を明示的に指定
-        verbose_name = "カテゴリー"
-        verbose_name_plural = "カテゴリー"
+        # verbose_name = "カテゴリー"
+        # verbose_name_plural = "カテゴリー"
 
     def __str__(self):
         return self.category_name  # 管理画面で表示する文字列

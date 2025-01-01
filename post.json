@@ -1,0 +1,50 @@
+{
+  "title": "Sample Article Title",
+  "published_at": "2024-12-31T10:00:00Z",
+  "is_published": false,
+  "source_url": "https://example.com/source",
+  "media": [
+    {
+      "media_type": "image",
+      "media_url": "https://example.com/image1.jpg"
+    },
+    {
+      "media_type": "video",
+      "media_url": "https://example.com/video1.mp4"
+    }
+  ],
+  "posts": [
+    {
+      "content": "This is a sample post content.",
+      "media": [
+        {
+          "media_type": "image",
+          "media_url": "https://example.com/image1.jpg"
+        },
+        {
+          "media_type": "video",
+          "media_url": "https://example.com/video1.mp4"
+        }
+      ]
+    },
+    {
+      "content": "This is another post content.",
+      "media": [
+        {
+          "media_type": "image",
+          "media_url": "https://example.com/image1.jpg"
+        },
+        {
+          "media_type": "video",
+          "media_url": "https://example.com/video1.mp4"
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "content": "string",
+  "author": "string",
+  "article": 1
+}

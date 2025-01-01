@@ -2,11 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import status
-from .models import Article, Post, Media, Category, ArticleCategory, PostMedia, Comment, ArticleMedia
+from .models import Article, Post, Media, Category, Comment
 from .serializers import (
     ArticleSerializer, PostSerializer, MediaSerializer,
-    CategorySerializer, ArticleCategorySerializer,
-    PostMediaSerializer, CommentSerializer, ArticleMediaSerializer
+    CategorySerializer, CommentSerializer, UrlSerializer
 )
 
 class BaseAPIView(APIView):
@@ -58,25 +57,65 @@ class CategoryAPIView(BaseAPIView):
     model = Category
     serializer_class = CategorySerializer
 
-class ArticleCategoryAPIView(BaseAPIView):
-    model = ArticleCategory
-    serializer_class = ArticleCategorySerializer
-
-class PostMediaAPIView(BaseAPIView):
-    model = PostMedia
-    serializer_class = PostMediaSerializer
-
 class CommentAPIView(BaseAPIView):
     model = Comment
     serializer_class = CommentSerializer
 
-class ArticleMediaAPIView(BaseAPIView):
-    model = ArticleMedia
-    serializer_class = ArticleMediaSerializer
-
-# Create your views here.
-class ItemView(APIView):
-    permission_classes = [permissions.AllowAny]
-    
-    def get(self,request):
-        return Response({'method':'get'})
+class RedditAPIView(APIView):
+    serializer_class = UrlSerializer
+    def post(self, request, *args, **kwargs):
+        # ここでリクエストのURLを取得
+        input_url = request.data.get('url')
+        
+        if not input_url:
+            return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 以下はサンプルデータ（実際にはWebスクレイピングやAPI呼び出しでデータ取得）
+        response_data = {
+            "title": "Sample Article Title",
+            "source_url": input_url,
+            "media": [
+                {
+                    "media_type": "image",
+                    "media_url": "https://example.com/image1.jpg"
+                },
+                {
+                    "media_type": "video",
+                    "media_url": "https://example.com/video1.mp4"
+                }
+            ],
+            "posts": [
+                {
+                    "content": "This is a sample post content.",
+                    "media": [
+                        {
+                            "media_type": "image",
+                            "media_url": "https://example.com/image1.jpg"
+                        },
+                        {
+                            "media_type": "video",
+                            "media_url": "https://example.com/video1.mp4"
+                        }
+                    ]
+                },
+                {
+                    "content": "This is another post content.",
+                    "media": [
+                        {
+                            "media_type": "image",
+                            "media_url": "https://example.com/image1.jpg"
+                        },
+                        {
+                            "media_type": "video",
+                            "media_url": "https://example.com/video1.mp4"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        serializer = ArticleSerializer(data=response_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
