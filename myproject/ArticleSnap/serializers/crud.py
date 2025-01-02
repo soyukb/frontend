@@ -37,7 +37,7 @@ class PostSerializer(serializers.ModelSerializer):
     media = MediaSerializer(many=True, required=False)
     class Meta:
         model = Post
-        fields = ['content', 'media','thingid','depth','parentid','created_at','likes']
+        fields = ['content', 'content_translated','media','thingid','depth','parentid','created_at','likes']
         read_only_fields = []
         
     def create(self, validated_data):
@@ -62,7 +62,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=True, required=False)     
     class Meta:
         model = Article
-        fields = ['article_id','title','source_url','category','published_at','comment_count','is_published','media', 'posts']
+        fields = ['article_id','title','title_translated','source_url','category','published_at','comment_count','is_published','media', 'posts']
         read_only_fields = ['article_id',]
         
     def create(self, validated_data):

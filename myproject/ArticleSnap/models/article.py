@@ -9,6 +9,9 @@ class Article(models.Model):
     # タイトル: 必須フィールド、長文対応
     title = models.TextField(verbose_name="タイトル")
     
+    # 日本語訳されたタイトル: 任意フィールド
+    title_translated = models.TextField(null=True, blank=True, verbose_name="タイトル（日本語訳）")
+    
     # 公開予定日時: 任意フィールド
     published_at = models.DateTimeField(null=True, blank=True, verbose_name="公開予定日時")
     

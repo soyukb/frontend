@@ -4,6 +4,7 @@ import time  # スクリプトに遅延を加えるためのtimeモジュール
 import os  # ファイル操作に使用するosモジュール
 from selenium.webdriver.chrome.service import Service  # Chromeドライバーのサービスを管理するためのクラス
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 
 def scroll_to_bottom(driver, pause_time=1):
     """
@@ -75,7 +76,7 @@ def click_join_outline_buttons(driver, wait_time=1):
 
 # スクレイピング対象のURL
 # url = 'https://www.reddit.com/r/PokemonUnite/comments/1hon7rh/permanent_lucario_unite_license_and_absol_holowear/'
-url = 'https://www.reddit.com/r/PokemonUnite/comments/1hqp58l/the_results_are_in/'
+url = 'https://chatgpt.com/'
 # url = 'https://www.reddit.com/r/PokemonUnite/comments/1hpvsec/just_a_quick_reminder_the_wheel_is_a_lie/'
 # url = 'https://www.reddit.com/r/PokemonUnite/comments/1hqibwb/we_go_to_hell_together_darkrai/'
 
@@ -84,6 +85,9 @@ service = Service('./chromedriver.exe')  # './' はスクリプトと同じデ�
 
 # Chromeのオプションを設定
 options = webdriver.ChromeOptions()
+options.add_argument(r'--user-data-dir=C:\Users\soyuk\AppData\Local\Google\Chrome\User Data\Profile 1')
+# 使用するプロファイル(ユーザー)を指定
+options.add_argument('--profile-directory=Profile 1')
 options.add_argument('--start-maximized')  # ブラウザを最大化して開始するオプション
 options.add_experimental_option('detach', True)  # スクリプト終了後もブラウザを閉じない設定
 
@@ -94,12 +98,12 @@ driver = webdriver.Chrome(options=options)
 try:
     # 指定されたURLを開く
     driver.get(url)  # 動的なWebページを読み込む
-    scroll_to_bottom(driver)
+    # scroll_to_bottom(driver)
 
     # 現在のページのHTMLソースコードを取得
     html = driver.page_source
-    click_join_outline_buttons(driver, wait_time=1)
-    html = driver.page_source
+    # click_join_outline_buttons(driver, wait_time=1)
+    # html = driver.page_source
 
     # HTMLを保存するための準備
     # スクリプトが保存されているディレクトリを取得

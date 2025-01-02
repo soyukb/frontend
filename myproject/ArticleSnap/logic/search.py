@@ -6,6 +6,8 @@ import os
 import json
 from pprint import pprint
 from selenium.webdriver.common.action_chains import ActionChains
+from googletrans import Translator
+
 
 def extract_data_from_html(url, driver_path='./chromedriver.exe'):
     """
@@ -39,9 +41,12 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
     try:
         # 指定されたURLを開く
         driver.get(url)
-        scroll_to_bottom(driver)
-        click_join_outline_buttons(driver, wait_time=1)
-
+        try:
+            scroll_to_bottom(driver)
+            click_join_outline_buttons(driver, wait_time=1)
+        except Exception as e:
+            print("title not found!")
+            
         # 動的にメディアと投稿を収集する処理
         media = []
         posts = []
@@ -108,7 +113,7 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
         # 各shreddit-commentタグを処理
         for comment_element in comment_elements:
             item = {
-                "content": "This is a sample content string.",
+                # "content": "This is a sample content string.",
                 # "media": [
                 #     {
                 #     "media_type": "image",
@@ -131,8 +136,9 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
             except Exception as e:
                 print("text not found!")
                 continue
-            if p_text:
-                item["content"]=p_text
+            if not p_text:
+                continue
+            item["content"]=p_text
             item["depth"]=depth
             if parentid:
                 item["parentid"]=parentid
@@ -175,6 +181,11 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
             "media": media,
             "posts": posts
         }
+        
+        # translator = Translator()
+        # result["title_translated"] = translator.translate(result["title"], src="en", dest="ja").text
+        # for post in result["posts"]:
+        #     post["content_translated"] = translator.translate(post["content"], src="en", dest="ja").text
 
         return result
 

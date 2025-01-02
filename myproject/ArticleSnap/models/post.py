@@ -13,6 +13,9 @@ class Post(models.Model):
     # 投稿内容
     content = models.TextField(verbose_name="投稿内容")
     
+    # 日本語訳された投稿内容
+    content_translated = models.TextField(verbose_name="翻訳された投稿内容", blank=True, null=True)
+    
     # 親投稿ID（自己参照型外部キー）
     parent_post = models.ForeignKey(
         'self', null=True, blank=True, on_delete=models.CASCADE, verbose_name="親投稿", related_name="replies"
