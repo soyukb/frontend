@@ -2,11 +2,12 @@ from django.urls import path, include
 from . import views
 from .views import (
     ArticleAPIView, PostAPIView, MediaAPIView, CategoryAPIView,
-    CommentAPIView, RedditAPIView
+    CommentAPIView, RedditAPIView, ListArticleAPIView
 )
 
 urlpatterns = [
     path('articles/', ArticleAPIView.as_view()),
+    path('listarticles/', ListArticleAPIView.as_view()),
     path('articles/<int:pk>/', ArticleAPIView.as_view()),
     path('posts/', PostAPIView.as_view()),
     # path('posts/<int:pk>/', PostAPIView.as_view()),

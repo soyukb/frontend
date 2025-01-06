@@ -5,7 +5,7 @@ from rest_framework import status
 from .models import Article, Post, Media, Category, Comment
 from .serializers import (
     ArticleSerializer, PostSerializer, MediaSerializer,
-    CategorySerializer, CommentSerializer, UrlSerializer
+    CategorySerializer, CommentSerializer, UrlSerializer, ListArticleSerializer
 )
 from .logic.search import extract_data_from_html
 
@@ -45,6 +45,10 @@ class BaseAPIView(APIView):
 class ArticleAPIView(BaseAPIView):
     model = Article
     serializer_class = ArticleSerializer
+
+class ListArticleAPIView(BaseAPIView):
+    model = Article
+    serializer_class = ListArticleSerializer
 
 class PostAPIView(BaseAPIView):
     model = Post

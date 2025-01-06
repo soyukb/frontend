@@ -76,7 +76,7 @@ def click_join_outline_buttons(driver, wait_time=1):
 
 # スクレイピング対象のURL
 # url = 'https://www.reddit.com/r/PokemonUnite/comments/1hon7rh/permanent_lucario_unite_license_and_absol_holowear/'
-url = 'https://chatgpt.com/'
+url = 'https://www.reddit.com/r/PokemonUnite/comments/1hueepn/give_me_a_genuine_reason_why_a_support_should_not/'
 # url = 'https://www.reddit.com/r/PokemonUnite/comments/1hpvsec/just_a_quick_reminder_the_wheel_is_a_lie/'
 # url = 'https://www.reddit.com/r/PokemonUnite/comments/1hqibwb/we_go_to_hell_together_darkrai/'
 
@@ -85,7 +85,7 @@ service = Service('./chromedriver.exe')  # './' はスクリプトと同じデ�
 
 # Chromeのオプションを設定
 options = webdriver.ChromeOptions()
-options.add_argument(r'--user-data-dir=C:\Users\soyuk\AppData\Local\Google\Chrome\User Data\Profile 1')
+# options.add_argument(r'--user-data-dir=C:\Users\soyuk\AppData\Local\Google\Chrome\User Data\Profile 1')
 # 使用するプロファイル(ユーザー)を指定
 options.add_argument('--profile-directory=Profile 1')
 options.add_argument('--start-maximized')  # ブラウザを最大化して開始するオプション

@@ -37,7 +37,7 @@ class PostSerializer(serializers.ModelSerializer):
     media = MediaSerializer(many=True, required=False)
     class Meta:
         model = Post
-        fields = ['content', 'content_translated','media','thingid','depth','parentid','created_at','likes']
+        fields = ['post_id','content', 'content_translated','media','thingid','depth','parentid','created_at','likes']
         read_only_fields = []
         
     def create(self, validated_data):
@@ -164,3 +164,12 @@ class ArticleSerializer(serializers.ModelSerializer):
             
             # 更新した Article インスタンスを返す
             return instance
+
+
+class ListArticleSerializer(serializers.ModelSerializer):
+    media = MediaSerializer(many=True)
+    category = CategorySerializer(many=True, required=False)     
+    class Meta:
+        model = Article
+        fields = ['article_id','title','title_translated','source_url','category','published_at','comment_count','is_published','media']
+        read_only_fields = ['article_id',] 

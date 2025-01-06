@@ -109,9 +109,10 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
         
         # shreddit-commentタグをすべて取得
         comment_elements = driver.find_elements(By.TAG_NAME, "shreddit-comment")
-
+        pprint(comment_elements)
         # 各shreddit-commentタグを処理
         for comment_element in comment_elements:
+            pprint(comment_element)
             item = {
                 # "content": "This is a sample content string.",
                 # "media": [
@@ -127,10 +128,24 @@ def extract_data_from_html(url, driver_path='./chromedriver.exe'):
                 # "likes": 1500
                 }
             # 必要な属性を取得
-            thingid = comment_element.get_attribute("thingid")
-            depth = comment_element.get_attribute("depth")
-            parentid = comment_element.get_attribute("parentid")
-            likes = comment_element.get_attribute("score")
+            try:
+                thingid = comment_element.get_attribute("thingid")
+            except Exception as e:
+                print("text not found!")
+            try:
+                depth = comment_element.get_attribute("depth")
+            except Exception as e:
+                print("text not found!")
+            try:
+                parentid = comment_element.get_attribute("parentid")
+            except Exception as e:
+                print("text not found!")
+            try:
+                likes = comment_element.get_attribute("score")
+            except Exception as e:
+                print("text not found!")
+            
+          
             try:
                 p_text = comment_element.find_element(By.TAG_NAME, "p").text
             except Exception as e:
@@ -263,7 +278,7 @@ def scroll_to_bottom(driver, pause_time=1):
         last_height = new_height
         
     # ページの一番上にスクロール
-    driver.execute_script("window.scrollTo(0, 0);")
+    # driver.execute_script("window.scrollTo(0, 0);")
 
 def click_join_outline_buttons(driver, wait_time=1.5):
     """
@@ -280,28 +295,28 @@ def click_join_outline_buttons(driver, wait_time=1.5):
     
     try:
         # join-outlineアイコンが付いているボタンをすべて取得
-        for i in range(3):  # 0から2まで繰り返す
-            svg_elements = driver.find_elements(By.TAG_NAME, "svg")
-            join_outline_svg = [svg for svg in svg_elements if svg.get_attribute("icon-name") == "join-outline"]
-            print(f"見つかったボタンの数: {len(join_outline_svg)}")
-            time.sleep(3)
-            # 各ボタンをクリック
-            for button in join_outline_svg:
-                try:
-                    # ボタンが表示されるようスクロール
-                    ActionChains(driver).move_to_element(button).perform()
-                    button.click()
-                    print("ボタンをクリックしました")
-                    time.sleep(wait_time)  # ボタンを押す間隔
-                except Exception as e:
-                    print(f"ボタンをクリック中にエラーが発生しました")
+        # for i in range(3):  # 0から2まで繰り返す
+        svg_elements = driver.find_elements(By.TAG_NAME, "svg")
+        join_outline_svg = [svg for svg in svg_elements if svg.get_attribute("icon-name") == "join-outline"]
+        print(f"見つかったボタンの数: {len(join_outline_svg)}")
+        time.sleep(3)
+        # 各ボタンをクリック
+        for button in join_outline_svg:
+            try:
+                # ボタンが表示されるようスクロール
+                ActionChains(driver).move_to_element(button).perform()
+                button.click()
+                print("ボタンをクリックしました")
+                time.sleep(wait_time)  # ボタンを押す間隔
+            except Exception as e:
+                print(f"ボタンをクリック中にエラーが発生しました")
         return len(join_outline_svg)
     except Exception as e:
         print(f"処理中にエラーが発生しました")
         return 0
 
 if __name__ == "__main__":
-    url = r"https://www.reddit.com/r/PokemonUnite/comments/1hqpbt8/when_you_steal_rayquaza_oc/"
+    url = r"https://www.reddit.com/r/PokemonUnite/comments/1hueepn/give_me_a_genuine_reason_why_a_support_should_not/"
     result=extract_data_from_html(url, driver_path='./chromedriver.exe')
     pprint(result)
 
