@@ -144,6 +144,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # 必要に応じて増やす
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Unite API',

@@ -28,7 +28,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=now, verbose_name="作成日時")  # 日時フィールド
     
     # MediaへのMany-to-Manyフィールド
-    media = models.ManyToManyField(Media, related_name="post", verbose_name="関連メディア")
+    media = models.ManyToManyField(Media, related_name="post", verbose_name="関連メディア", blank=True)
     
     # Thing ID
     thingid = models.CharField(null=True, blank=True,max_length=50, verbose_name="Thing ID", default="")

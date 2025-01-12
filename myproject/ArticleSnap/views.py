@@ -8,6 +8,8 @@ from .serializers import (
     CategorySerializer, CommentSerializer, UrlSerializer, ListArticleSerializer
 )
 from .logic.search import extract_data_from_html
+from rest_framework import viewsets
+from rest_framework.decorators import action
 
 class BaseAPIView(APIView):
     model = None
@@ -126,3 +128,4 @@ class RedditAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

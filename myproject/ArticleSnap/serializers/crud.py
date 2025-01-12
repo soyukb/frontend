@@ -20,7 +20,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ['comment_id','article','content','author','created_at','parent_comment','likes','dislikes']
+        read_only_fields = []
         
     def create(self, validated_data):
         with transaction.atomic():
@@ -58,11 +59,12 @@ class PostSerializer(serializers.ModelSerializer):
 
 class ArticleSerializer(serializers.ModelSerializer):
     media = MediaSerializer(many=True)
+    comments = CommentSerializer(many=True, required=False) 
     posts = PostSerializer(many=True) 
     category = CategorySerializer(many=True, required=False)     
     class Meta:
         model = Article
-        fields = ['article_id','title','title_translated','source_url','category','published_at','comment_count','is_published','media', 'posts']
+        fields = ['article_id','title','title_translated','source_url','category','published_at','comment_count','comments','is_published','media', 'posts']
         read_only_fields = ['article_id',]
         
     def create(self, validated_data):

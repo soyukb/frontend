@@ -5,7 +5,7 @@ class Comment(models.Model):
     comment_id = models.BigAutoField(primary_key=True)
     
     # 外部キー: Article
-    article = models.ForeignKey('Article', on_delete=models.CASCADE, verbose_name="記事")
+    article = models.ForeignKey('Article', on_delete=models.CASCADE, verbose_name="記事", related_name='comments')
     
     # コメント内容
     content = models.TextField(verbose_name="コメント内容")
